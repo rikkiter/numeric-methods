@@ -1,9 +1,10 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
+#include <cmath>
 using namespace std;
 
-const int N = 4;
+const int N = 2;
 
 void print_matrix(double (*a)[N], int size) {
     for(int i=0; i<size; i++) {
@@ -107,13 +108,52 @@ void kramer_method(double (*a)[N], double (*b), double (*ans), int size) {
     }
 }
 
+double comp_minor(double (*a)[N], int m_i, int m_j, int size) {
+    double temp[N][N];
+    int local_i=0, local_j=0;
+    for(int i=0; i<size; i++) {
+        if(i==m_i) continue;
+        local_j = 0;
+        for(int j=0; j<size; j++) {
+            if(j==m_j) continue;
+            temp[local_i][local_j] = a[i][j];
+            local_j++;
+        }
+        local_i++;
+    }
+    return lower_triangle_method(temp, size-1);
+}
+
+void back_matrix(double (*a)[N], double (*res)[N], int size) {
+    double A = lower_triangle_method(a, size);
+    for(int i=0; i<size; i++)
+        for(int j=0; j<size; j++)
+            res[j][i] = (1/A)*pow(-1, i+j)*comp_minor(a, i, j, size);
+}
+
+
+
+int main() {
+    double a[2][2] {{1, 2}, {3, 4}};
+    double res[2][2];
+    cout << fixed << setprecision(2);
+    back_matrix(a, res, 2);
+    print_matrix(res, 2);
+    // kramer_method(a, b, ans, 4);
+}
+
+/*
 int main() {
     double a[4][4] {{1, 2, 3, -2}, {1, -1, -2, -3}, {3, 2, -1, 2}, {2, -3, 2, 1}};
     double b[4] {6, 8, 4, -8};
+    double res[4][4];
     double ans[4];
     cout << fixed << setprecision(2);
-    kramer_method(a, b, ans, 4);
+    back_matrix(a, res, 4);
+    print_matrix(res, 4);
+    // kramer_method(a, b, ans, 4);
 }
+*/
 
 /*
 int main() {
