@@ -3,50 +3,135 @@
 #include <limits>
 using namespace std;
 
-const int N = 100;
+const int N = 4;
+
+void print_matrix(double (*a)[N], int size) {
+    for(int i=0; i<size; i++) {
+        for(int j=0; j<size; j++) {
+            if(a[i][j] >= 0) cout << " " << a[i][j] << " ";
+            else cout << a[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
 
 double lower_triangle_method(double (*a)[N], int size) {
+    double temp[N][N];
+    for(int i=0; i<size; i++)
+        for(int j=0; j<size; j++)
+            temp[i][j] = a[i][j];
     for(int i=0; i<size; i++) {
-        double x = a[i][i];
+        double x = temp[i][i];
         for(int j=i+1; j<size; j++) {
-            double y = a[j][i];
+            double y = temp[j][i];
             double d = y/x;
             for(int k=i; k<size; k++) {
-                a[j][k] -= a[i][k]*d;
+                temp[j][k] -= temp[i][k]*d;
             }
         }
     }
+
+    print_matrix(temp, size);
+    cout << endl;
+
     double ans = 1;
     for(int i=0; i<size; i++) {
-        ans *= a[i][i];
+        ans *= temp[i][i];
     }
     return ans;
 }
 
 double diagonal_method(double (*a)[N], int size) {
-    lower_triangle_method(a, size);
-    for(int i=size-1; i>=0; i--) {
-        double x = a[i][i];
-        for(int j=i-1; j>=0; j--) {
-            double y = a[j][i];
+    double temp[N][N];
+    for(int i=0; i<size; i++)
+        for(int j=0; j<size; j++)
+            temp[i][j] = a[i][j];
+    
+    for(int i=0; i<size; i++) {
+        double x = temp[i][i];
+        for(int j=i+1; j<size; j++) {
+            double y = temp[j][i];
             double d = y/x;
-            for(int k=i; k>=0; k--) {
-                a[j][k] -= a[i][k]*d;
+            for(int k=i; k<size; k++) {
+                temp[j][k] -= temp[i][k]*d;
             }
         }
     }
+
+    for(int i=size-1; i>=0; i--) {
+        double x = temp[i][i];
+        for(int j=i-1; j>=0; j--) {
+            double y = temp[j][i];
+            double d = y/x;
+            for(int k=i; k>=0; k--) {
+                temp[j][k] -= temp[i][k]*d;
+            }
+        }
+    }
+
+    print_matrix(temp, size);
+    cout << endl;
+
+
     double ans = 1;
     for(int i=0; i<size; i++) {
-        ans *= a[i][i];
+        ans *= temp[i][i];
     }
-    return ans;
 
+    return ans;
 }
 
+double comp_kramer_opred(double (*a)[N], double (*b), int iter, int size) {
+    double temp[N][N];
+    for(int i=0; i<size; i++)
+        for(int j=0; j<size; j++)
+            temp[i][j] = a[i][j];
+    for(int i=0; i<size; i++) 
+        temp[i][iter] = b[i];
+    return lower_triangle_method(temp, size);
+}
 
+void kramer_method(double (*a)[N], double (*b), double (*ans), int size) {
+    double A = lower_triangle_method(a, size);
+    if(!A) {
+        cout << "Решение не может быть найдено. Главный определитель равен нулю" << endl;
+        return;
+    }
+    for(int i=0; i<size; i++) {
+        ans[i] = comp_kramer_opred(a, b, i, size)/A;
+    }
+
+    cout << "Решение СЛАУ:" << endl;
+    for(int i=0; i<size; i++) {
+        cout << 'x' << i+1 << '=' << ans[i] << " ";
+    }
+}
+
+int main() {
+    double a[4][4] {{1, 2, 3, -2}, {1, -1, -2, -3}, {3, 2, -1, 2}, {2, -3, 2, 1}};
+    double b[4] {6, 8, 4, -8};
+    double ans[4];
+    cout << fixed << setprecision(2);
+    kramer_method(a, b, ans, 4);
+}
+
+/*
 int main() {
     double a1[4][4] {{1, 2, -1, 1}, {2, 1, 1, 1}, {1, -1, 2, 1}, {1, 1, -1, 3}};
     double a3[4][4] {{1, 2, 3, -2}, {1, -1, -2, -3}, {3, 2, -1, 2}, {2, -3, 2, 1}};
+    double b[4] {6, 8, 4, -8};
+    cout << fixed << setprecision(2);
+    print_matrix(a3, 4);
+    cout << endl;
+    cout << diagonal_method(a3, 4) << endl;
+    cout << endl;
+    print_matrix(a3, 4);
+}
+*/
+
+/*
+int main() {
+
     double a[N][N];
     int n;
     do {
@@ -99,3 +184,4 @@ int main() {
     }
     
 } 
+*/
