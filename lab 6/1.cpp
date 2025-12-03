@@ -4,7 +4,7 @@
 #include <cmath>
 using namespace std;
 
-const int N = 2;
+const int N = 4;
 
 void print_matrix(double (*a)[N], int size) {
     for(int i=0; i<size; i++) {
@@ -32,8 +32,8 @@ double lower_triangle_method(double (*a)[N], int size) {
         }
     }
 
-    print_matrix(temp, size);
-    cout << endl;
+    // print_matrix(temp, size);
+    // cout << endl;
 
     double ans = 1;
     for(int i=0; i<size; i++) {
@@ -70,8 +70,8 @@ double diagonal_method(double (*a)[N], int size) {
         }
     }
 
-    print_matrix(temp, size);
-    cout << endl;
+    // print_matrix(temp, size);
+    // cout << endl;
 
 
     double ans = 1;
@@ -131,14 +131,27 @@ void back_matrix(double (*a)[N], double (*res)[N], int size) {
             res[j][i] = (1/A)*pow(-1, i+j)*comp_minor(a, i, j, size);
 }
 
+void back_matrix_method(double (*a)[N], double (*b), double (*ans), int size) {
+    double this_back_matrix[N][N];
+    back_matrix(a, this_back_matrix, size);
+    for(int i=0; i<size; i++)
+        for(int j=0; j<size; j++)
+            ans[i] += this_back_matrix[i][j]*b[j];
 
+    cout << "Решение СЛАУ:" << endl;
+    for(int i=0; i<size; i++) {
+        cout << 'x' << i+1 << '=' << ans[i] << " ";
+    }
+}
 
 int main() {
-    double a[2][2] {{1, 2}, {3, 4}};
-    double res[2][2];
+    double a[4][4] {{1, 2, 3, -2}, {1, -1, -2, -3}, {3, 2, -1, 2}, {2, -3, 2, 1}};
+    double b[4] {6, 8, 4, -8};
+    double res[4];
     cout << fixed << setprecision(2);
-    back_matrix(a, res, 2);
-    print_matrix(res, 2);
+    back_matrix_method(a, b, res, 4);
+    cout << endl;
+    kramer_method(a, b, res, 4);
     // kramer_method(a, b, ans, 4);
 }
 
