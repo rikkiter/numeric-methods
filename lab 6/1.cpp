@@ -4,7 +4,7 @@
 #include <cmath>
 using namespace std;
 
-const int N = 4;
+const int N = 100;
 
 void print_matrix(double (*a)[N], int size) {
     for(int i=0; i<size; i++) {
@@ -143,7 +143,7 @@ void back_matrix_method(double (*a)[N], double (*b), double (*ans), int size) {
         cout << 'x' << i+1 << '=' << ans[i] << " ";
     }
 }
-
+/*
 int main() {
     double a[4][4] {{1, 2, 3, -2}, {1, -1, -2, -3}, {3, 2, -1, 2}, {2, -3, 2, 1}};
     double b[4] {6, 8, 4, -8};
@@ -154,7 +154,7 @@ int main() {
     kramer_method(a, b, res, 4);
     // kramer_method(a, b, ans, 4);
 }
-
+*/
 /*
 int main() {
     double a[4][4] {{1, 2, 3, -2}, {1, -1, -2, -3}, {3, 2, -1, 2}, {2, -3, 2, 1}};
@@ -182,10 +182,12 @@ int main() {
 }
 */
 
-/*
+
 int main() {
 
     double a[N][N];
+    double b[N];
+    double res[N];
     int n;
     do {
         cout << "Введите размерность матрицы" << endl;
@@ -205,7 +207,7 @@ int main() {
         for(int j=0; j<n; j++) {
             cin >> a[i][j];
             if(cin.fail()) {
-                cout << "Введен неправильный тип данных! Ожидалось целое число." << endl;
+                cout << "Введен неправильный тип данных! Ожидалось число." << endl;
                 cout << "Чтобы ввести заново нажмите Enter" << endl;
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -218,6 +220,19 @@ int main() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
             
     }
+    for(int i=0; i<1; i++) {
+    cout << "Введите значения столбца свободных членов через пробел" << endl;
+        for(int j=0; j<n; j++) {
+            cin >> b[j];
+            if(cin.fail()) {
+                cout << "Введен неправильный тип данных! Ожидалось число." << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                i--;
+                break;
+            }
+        }
+    }
     cout << n << endl;
     for(int i=0; i<n; i++) {
         for(int j=0; j<n; j++) {
@@ -226,15 +241,9 @@ int main() {
         }
         cout << endl;
     }
-    cout << diagonal_method(a, n) << endl;
-    cout << fixed << setprecision(2);
-    for(int i=0; i<n; i++) {
-        for(int j=0; j<n; j++) {
-            if(a[i][j] >= 0) cout << " " << a[i][j] << " ";
-            else  cout << a[i][j] << " ";
-        }
-        cout << endl;
-    }
-    
+
+    cout << endl << "Решение методом обратной матрицы:" << endl;
+    back_matrix_method(a, b, res, 4);
+    cout << endl << "Решение методом Крамера:" << endl;
+    kramer_method(a, b, res, 4);
 } 
-*/
