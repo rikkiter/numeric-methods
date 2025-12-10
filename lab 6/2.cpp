@@ -130,7 +130,7 @@ int main() {
         }
         cout << endl;
     }
-
+    cout << fixed << setprecision(3);
     cout << endl << "Решение методом Гаусса:" << endl;
     gauss_method(a, b, res, 4);
 } 
