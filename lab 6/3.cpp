@@ -16,7 +16,7 @@ void print_matrix(double (*a)[N], int size) {
     }
 }
 
-double single_division(double (*a)[N], double (*b)[N], int size) {
+void single_division(double (*a)[N], double (*b)[N], int size) {
     double temp[N][N];
     for(int i=0; i<size; i++)
         for(int j=0; j<size; j++) {
@@ -29,7 +29,7 @@ double single_division(double (*a)[N], double (*b)[N], int size) {
         for(int j=i+1; j<size; j++) {
             double y = temp[j][i];
             double d = y/x;
-            for(int k=i; k<size; k++) {
+            for(int k=0; k<size; k++) {
                 temp[j][k] -= temp[i][k]*d;
                 b[j][k] -= b[i][k]*d;
             }
@@ -46,28 +46,16 @@ double single_division(double (*a)[N], double (*b)[N], int size) {
         for(int j=i-1; j>=0; j--) {
             double y = temp[j][i];
             double d = y/x;
-            for(int k=i; k>=0; k--) {
+            for(int k=size-1; k>=0; k--) {
                 temp[j][k] -= temp[i][k]*d;
                 b[j][k] -= b[i][k]*d;
             }
         }
-        // for(int j=0; j<size; j++) {
-        //     temp[i][j] /= x;
-        //     b[i][j] /= x;
-        // }
     }
     print_matrix(b, size);
     cout << endl;
     print_matrix(temp, size);
     cout << endl;
-
-
-    double ans = 1;
-    for(int i=0; i<size; i++) {
-        ans *= temp[i][i];
-    }
-
-    return ans;
 }
 
 int main() {

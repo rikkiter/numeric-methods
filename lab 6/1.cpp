@@ -190,17 +190,27 @@ int main() {
     double res[N];
     int n;
     do {
-        cout << "Введите размерность матрицы" << endl;
+        cout << "Решение СЛАУ методом обратной матрицы и методом Крамера. Максимальный размер матрицы - 100." << endl;
+        cout << "Введите размерность матрицы. Чтобы выйти введите - 0" << endl;
         cin >> n;
-
         if(cin.fail()) {
             cout << "Введен неправильный тип данных! Ожидалось целое число." << endl;
-            cout << "Чтобы ввести заново нажмите Enter" << endl;
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        
-    } while(cin.fail());
+
+        if(n > 100 || n < 0) {
+            cout << "Введена некорректная размерность." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+        if(n==0) {
+            cout << "Выход из программы.";
+            return 0;
+        }
+
+    } while(cin.fail() || n > 100 || n < 0);
 
     for(int i=0; i<n; i++) {
         cout << "Введите значения " << i+1  << " строки через пробел"<< endl;
