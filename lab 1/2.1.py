@@ -8,6 +8,8 @@ class Number:
     где в скобках относительная погрешность
     """
     def __init__(self, number_with_accuracy: str):
+        if not number_with_accuracy.endswith(")"):
+            raise Exception
         number = number_with_accuracy.split("(")
         self.number = float(number[0])
         self.accuracy = float(number[1][:-1])

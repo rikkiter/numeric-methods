@@ -5,6 +5,8 @@ class Number:
     где в скобках относительная погрешность
     """
     def __init__(self, number_with_accuracy: str):
+        if not number_with_accuracy.endswith(")"):
+            raise Exception
         number = number_with_accuracy.split("(")
         self.number = float(number[0])
         self.accuracy = float(number[1][:-1])
@@ -54,7 +56,6 @@ def main():
         except Exception:
             print("Неверный формат")
             break
-        print(f"∛({a.number}-{b.number})/({m.number}*({n.number}-{a.number})) = {expression_value(a, b, m, n)}")
         print(f"Относительная погрешность: {relative_accuracy_value(a, b, m, n)}")
         print(f"Абсолютная погрешность: {absolute_accuracy_value(a, b, m, n)}")
         if input("Продолжить? (Да/Нет)\n") == "Нет":
