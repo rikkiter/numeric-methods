@@ -1,73 +1,124 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <iomanip>
+#include <sstream>
+
 using namespace std;
 
-// Имеется баг когда число дробная часть числа начинается на 0...
-
-class Number {
-public:
-    int integer_part;
-    int fractional_part;
-    // int zeros_quantity_in_fp = 0;
-
-    Number(string num) {
-        bool dot = true;
-        string integer_part_s;
-        string fractional_part_s;
-        for(int i=0; i<num.size(); i++) {
-            if(num[i] == '.') dot = false;
-            else if(dot) integer_part_s.push_back(num[i]);
-            else fractional_part_s.push_back(num[i]);
-        }
-        // for(int i=0; i<fractional_part_s.size(); i++) {
-        //     if(fractional_part_s[i] != '0') break;
-        //     zeros_quantity_in_fp++;
-        // }
-        integer_part = stoi(integer_part_s);
-        fractional_part = stoi(fractional_part_s);
-    }
-
-    void num_round(int n) {
-        float new_fractional = fractional_part;
-
-        if(n==0) {
-            while(new_fractional > 1) new_fractional /= 10;
-            integer_part = (int) round(integer_part + new_fractional);
-            fractional_part = 0;
-            return;
-        }
-
-        float round_pattern = pow(10, n);
-        cout << round_pattern << endl;
-        while(new_fractional > round_pattern) new_fractional /= 10;
-        cout << new_fractional << endl;
-        fractional_part = (int) round(new_fractional);
+// Функция для получения шага округления
+double get_round_pattern(double absolute_accuracy, bool is_nar) {
+    // Преобразуем абсолютную погрешность в строку для анализа
+    stringstream ss;
+    ss << fixed << setprecision(15) << absolute_accuracy;
+    string acc_str = ss.str();
+    
+    // Если есть точка в числе
+    size_t dot_pos = acc_str.find('.');
+    if (dot_pos != string::npos) {
+        // Получаем дробную часть
+        string fractional = acc_str.substr(dot_pos + 1);
         
+        int place = 0;
+        for (size_t i = 0; i < fractional.length(); i++) {
+            int num = fractional[i] - '0';
+            if (num != 0) {
+                if (is_nar) {
+                    if (num < 5) {
+                        place = i + 1;
+                    } else {
+                        place = i - 1;
+                    }
+                } else {
+                    place = i;
+                }
+                break;
+            }
+        }
+        return pow(10.0, -place);
     }
+    return 10.0;
+}
 
-    string toString() {
-        // if(fractional_part==0) return to_string(integer_part);
-        // string zeros(zeros_quantity_in_fp, '0');
-        return to_string(integer_part) + "." + to_string(fractional_part);
+// Функция для обновления шага округления
+double update_round_pattern(double round_pattern) {
+    stringstream ss;
+    ss << fixed << setprecision(15) << round_pattern;
+    string pattern_str = ss.str();
+    
+    // Убираем лишние нули в конце
+    size_t dot_pos = pattern_str.find('.');
+    if (dot_pos != string::npos) {
+        while (pattern_str.back() == '0' && pattern_str.length() > dot_pos + 2) {
+            pattern_str.pop_back();
+        }
     }
-
-    float toFloat() {
-        return stof(toString());
+    
+    if (pattern_str.length() <= 3) {
+        return 1.0;
     }
+    
+    // Преобразуем для изменения шага
+    double new_pattern = round_pattern / 10;
+    return new_pattern;
+}
 
-};
-
-Number round_number(Number num, float absolute_accurancy, bool is_nar) {
-
+// Функция для округления числа
+double round_num(double num, double absolute_accuracy = -1.0, double relative_accuracy = -1.0, bool is_nar = true) {
+    // Если задана относительная погрешность, вычисляем абсолютную
+    if (absolute_accuracy < 0 && relative_accuracy >= 0) {
+        absolute_accuracy = relative_accuracy * num;
+    } else if (absolute_accuracy < 0) {
+        return num; // Без точности возвращаем исходное число
+    }
+    
+    double round_pattern = get_round_pattern(absolute_accuracy, is_nar);
+    
+    while (true) {
+        // Округляем до заданного шага
+        double new_num = round(num / round_pattern) * round_pattern;
+        
+        double new_absolute_accuracy = absolute_accuracy + abs(new_num - num);
+        
+        if (is_nar) {
+            if (new_absolute_accuracy < round_pattern / 2.0) {
+                return new_num;
+            }
+        } else {
+            if (new_absolute_accuracy < round_pattern) {
+                return new_num;
+            }
+        }
+        
+        round_pattern = update_round_pattern(round_pattern);
+        
+        // Защита от бесконечного цикла
+        if (round_pattern <= 0.0000000001) {
+            return new_num;
+        }
+    }
 }
 
 int main() {
-    Number num("123.005");
-    cout << num.toString() << endl;
-    cout << num.toFloat() << endl;
-    num.num_round(1);
-    cout << num.toString() << endl;
-    cout << num.toFloat() << endl;
-
+    double num1, num2;
+    double relative_acc1, absolute_acc2;
+    
+    cout << "Введите число в формате 0.0: ";
+    cin >> num1;
+    cout << "Введите относительную погрешность в процентах: ";
+    cin >> relative_acc1;
+    relative_acc1 /= 100.0;
+    
+    cout << "Ответ: " << fixed << setprecision(10) 
+              << round_num(num1, -1.0, relative_acc1, true) << endl;
+    
+    cout << "Введите число в формате 0.0: ";
+    cin >> num2;
+    cout << "Введите абсолютную погрешность в формате 0.0: ";
+    cin >> absolute_acc2;
+    
+    cout << "Ответ: " << fixed << setprecision(10) 
+              << round_num(num2, absolute_acc2, -1.0, false) << endl;
+    
+    return 0;
 }
